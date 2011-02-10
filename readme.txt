@@ -1,11 +1,12 @@
 === Hide and Catch Email ===
-
 Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
 Requires at least: 2.7
 Tested up to: 3.1
 Stable tag: trunk
+
+Use this simple shortcode to hide your content in your posts/pages and replace with a form.
 
 == Description ==
 
@@ -37,6 +38,10 @@ I created this plugin to hide certain content and only reveal it when a user ent
 
 == Changelog ==
 
+= Version 0.2.2 (2/9/11) =
+
+* Updated the feed parser to comply with deprecated `rss.php` and use `class-simplepie.php`
+
 = Version 0.2.1 =
 
 * Definitions we're all pointing to the incorrect directories.
@@ -53,6 +58,9 @@ I created this plugin to hide certain content and only reveal it when a user ent
 
 
 == Upgrade Notice ==
+
+= 0.2.2 =
+Had some issues with SVN, and come files may have been moved, if you have issues, delete and reinstall.
 
 = 0.2 =
 First releasem expect bugs, please report to [Hide and Catch Email](http://austinpassy.com/wordpress-plugins/hide-and-catch-email)
