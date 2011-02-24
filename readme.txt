@@ -3,7 +3,7 @@ Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
 Requires at least: 2.7
-Tested up to: 3.1
+Tested up to: 3.2
 Stable tag: trunk
 
 Use this simple shortcode to hide your content in your posts/pages and replace with a form.
@@ -37,6 +37,10 @@ I created this plugin to hide certain content and only reveal it when a user ent
 1. Coming soon.
 
 == Changelog ==
+
+= Version 0.2.3 (2/24/11) =
+
+* Removed javscript link causing hang-ups.
 
 = Version 0.2.2 (2/9/11) =
 

@@ -3,7 +3,7 @@
  * Plugin Name: Hide &amp; Catch Emails
  * Plugin URI: http://austinpassy.com/wordpress-plugins/hide-and-catch-email
  * Description: Use this simple shortcode to hide any content in your posts/pages and replace with a email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. Use: [replace]xxx[/replace].
- * Version: 0.2.2
+ * Version: 0.2.3
  * Author: Austin Passy
  * Author URI: http://frostywebdesigns.com
  *

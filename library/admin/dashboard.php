@@ -60,7 +60,7 @@ function cl_dashboard($sidebar_args) {
 			</p>
             
 		<?php if ( $itemcount == 2 ) {
-			echo '<script type="text/javascript" src="http://wpads.net/ads/js-rss.php?type=link&align=center&zone=1"></script>';
+			echo '';
 		}
 			
 		endforeach;
