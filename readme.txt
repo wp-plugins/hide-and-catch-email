@@ -2,19 +2,17 @@
 Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
-Requires at least: 2.7
+Requires at least: 3.0
 Tested up to: 3.2
 Stable tag: trunk
 
-Use this simple shortcode to hide your content in your posts/pages and replace with a form.
+Adds a metabox to post/page and allows you to hide the content, and show only on form submission.
 
 == Description ==
 
-Use this simple shortcode to hide any content in your posts/pages. It will then replace the content between the shortcode with a form a user would have to fill out to see said content. Right now the form consists of a name field, email address, comment field, and spam deterant.
+Newly re-written to replace the whole page/post(s) content. It will replace the content with a form a user (who is not logged in and/or set to a certain user role (set by you on a per post basis)) would have to fill out to see said content. Right now the form consists of a name field, email address, comment field, and spam deterant.
 
-There are also two options for the shortcode. 1) capability => defaults to 'level_10'. 2) text => defualts to empty (and new text you'd like placed before the form).
-
-1. Use: `[replace text="Please fill out the form below to see the content"]`this is the content being replaced`[/replace]`
+There are two options for the cotent replacement. 1) capability => defaults to 'activate_plugins'. 2) text => defualts to empty - (the text you'd like placed before the form).
 
 For requests or feedback please leave comments on [Hide &amp; Catch Email](http://austinpassy.com/wordpress-plugins/hide-and-catch-email/).
 
@@ -24,7 +22,6 @@ Follow the steps below to install the plugin.
 
 1. Upload the `hide-and-catch-email` directory to the /wp-content/plugins/ directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Go to Settings/hide-and-catch-email to edit your settings.
 
 
 == Frequently Asked Questions ==
@@ -32,11 +29,18 @@ Follow the steps below to install the plugin.
 = Why create this plugin? =
 I created this plugin to hide certain content and only reveal it when a user enters there email addresss.
 
-== Screenshots ==
-
-1. Coming soon.
-
 == Changelog ==
+
+= Version 0.3 (3/10/11) =
+
+* Complete rewrite of plugin.
+* Setting page removed
+* Fixed header already sent by (...).
+* Removed shortcode.
+* Replaces the whole $content. Use included meta box.
+* TODO:
+** Use AJAX replacement.
+** Already 90% written, just needs cross browser testing.
 
 = Version 0.2.3 (2/24/11) =
 
@@ -62,6 +66,9 @@ I created this plugin to hide certain content and only reveal it when a user ent
 
 
 == Upgrade Notice ==
+
+= 0.3 =
+Complete rewrite using OOP. Removed shotcodes! Uses full content replacement via metabox.
 
 = 0.2.2 =
 Had some issues with SVN, and come files may have been moved, if you have issues, delete and reinstall.

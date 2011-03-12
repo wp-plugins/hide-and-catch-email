@@ -2,12 +2,12 @@
 /*
  * Plugin Name: Hide &amp; Catch Emails
  * Plugin URI: http://austinpassy.com/wordpress-plugins/hide-and-catch-email
- * Description: Use this simple shortcode to hide any content in your posts/pages and replace with a email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. Use: [replace]xxx[/replace].
- * Version: 0.2.3
+ * Description: Hide your content on any page/post/post_type and replace it with an email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. To use, activate on the post desired within the metabox. <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS">Like this plugin?, donate.</a> :)
+ * Version: 0.3
  * Author: Austin Passy
  * Author URI: http://frostywebdesigns.com
  *
- * @copyright 2009 - 2010
+ * @copyright 2009 - 2011
  * @author Austin Passy
  * @link http://frostywebdesigns.com/
  * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -19,388 +19,354 @@
  * @package HideCatchEmail
  */
 
+add_action( 'plugins_loaded', 'hide_and_catch_email' );
 
+function hide_and_catch_email() {
+	$plugin = new Hide_And_Catch_Email();
+}
 
-/**
- * Make sure we get the correct directory.
- * @since 0.1
- */
-
-	if ( !defined( 'WP_CONTENT_URL' ) )
-		define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
-	if ( !defined( 'WP_CONTENT_DIR' ) )
-		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-	if ( !defined( 'WP_PLUGIN_URL' ) )
-		define('WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
-	if ( !defined( 'WP_PLUGIN_DIR' ) )
-		define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
-
-/**
- * Define constant paths to the plugin folder.
- * @since 0.1
- */
-
-	define( HIDE_CATCH, WP_PLUGIN_DIR . '/hide-and-catch-email' );
-	define( HIDE_CATCH_URL, WP_PLUGIN_URL . '/hide-and-catch-email' );	
-
-	define( HIDE_CATCH_ADMIN, HIDE_CATCH . '/library/admin' );
+class Hide_And_Catch_Email {
 	
-	define( HIDE_CATCH_CSS, HIDE_CATCH_URL . '/library/css' );
-	define( HIDE_CATCH_JS, HIDE_CATCH_URL . '/library/js' );
-
-/**
- * Add the settings page to the admin menu.
- * @since 0.1
- */
-	add_action( 'admin_init', 'hide_catch_admin_warnings' );
-	add_action( 'admin_init', 'hide_catch_admin_init' );
-	add_action( 'admin_menu', 'hide_catch_add_pages' );
-
-
-/**
- * Filters.
- * @since 0.1
- */	
-	add_filter( 'plugin_action_links', 'hide_catch_plugin_actions', 10, 2 ); //Add a settings page to the plugin menu
-
-/**
- * Shortcodes.
- * @since 0.1
- */	
-	add_shortcode( 'replace', 'hide_catch_content' );
-
-/**
- * Load WP admin files.
- * @since 0.1
- */
-	if ( is_admin() ) :
-		require_once( HIDE_CATCH_ADMIN . '/settings-admin.php' );
-		//require_once( HIDE_CATCH_ADMIN . '/dashboard.php' );
-	endif;
-
-/**
- * Load the settings from the database.
- * @since 0.1
- */
-	$hide = get_option( 'hide_catch_email_settings' );
-
- /**
- * Load the stylesheet
- * @since 0.1
- */   
-function hide_catch_admin_init() {
-	wp_register_style( 'hide-catch-tabs', HIDE_CATCH_CSS . '/tabs.css' );
-	wp_register_style( 'hide-catch-admin', HIDE_CATCH_CSS . '/hide-catch-admin.css' );
-}
-
-/**
- * Function to add the settings page
- * @since 0.1
- */
-function hide_catch_add_pages() {
-	if ( function_exists( 'add_options_page' ) ) 
-		$page = add_options_page( 'Hide Catch Email Settings', 'Hide Catch Email', 10, 'hide-catch.php', hide_catch_page );
-			add_action( 'admin_print_styles-' . $page, 'hide_catch_admin_style' );
-			add_action( 'admin_print_scripts-' . $page, 'hide_catch_admin_script' );
-}
-
-/**
- * Function to add the style to the settings page
- * @since 0.1
- */
-function hide_catch_admin_style() {
-	//wp_enqueue_style( 'thickbox' );
-	wp_enqueue_style( 'hide-catch-tabs' );
-	wp_enqueue_style( 'hide-catch-admin' );
-}
-
-/**
- * Function to add the script to the settings page
- * @since 0.1
- */
-function hide_catch_admin_script() {
-	//wp_enqueue_script( 'thickbox' );
-	//wp_enqueue_script( 'theme-preview' );
-	wp_enqueue_script( 'hide-catch-admin', HIDE_CATCH_JS . '/hide-catch.js', array( 'jquery' ), '0.1', false );
-}
-
-function hide_catch_content( $attr, $content = null ) {
-	//$content = hide_catch_email_replacement( $content );
-
-	extract( shortcode_atts( array( 
-		'capability' 	=> 'level_10',
-		'text' 			=> '',
-	), $attr ) );
-
-	if ( ( current_user_can( $capability ) && !is_user_logged_in() && !is_null( $content ) ) || is_feed() )
-		return $content . '<span class="removed">Note: this content is hidden from public view.</span>';
-
-	//return $content;
-//}
-
-/**
- * Actual content replacement check
- * @ref http://stackoverflow.com/questions/528445/is-there-any-way-to-return-html-in-a-php-function-without-building-the-return-v (clean HTML return)
- */
-//function hide_catch_email_replacement( $content = null ) {
-	global $post,$hide;
-	$email = get_option('admin_email');
-	$sitename = get_option('blogname');
-	$cookie = md5($name); 
-	$cookieName = str_replace( array(" ", "=", ",", ";", "\t", "\r", "\n", "\013", "\014"), '', $sitename);
-	$desc = get_option('blogdescription');
+	function Hide_And_Catch_Email() {
+		$this->__construct();
+	}
 	
-	//@ref http://trevordavis.net/blog/tutorial/wordpress-jquery-contact-form-without-a-plugin/
-	//If the form is submitted
-	if(isset($_POST['submitted']) ) {
-	
-		//Check to see if the honeypot captcha field was filled in
-		if(trim($_POST['checking']) !== '') {
-			$captchaError = true;
-		} else {
+	function __construct() {
+		register_activation_hook( __FILE__, array( &$this, 'activate' ) );
 		
-			//Check to make sure that the name field is not empty
-			if(trim($_POST['contactName']) === '') {
-				$nameError = 'You forgot to enter your name.';
-				$hasError = true;
+		add_action( 'init', array( &$this, 'activate' ) );
+		add_action( 'init', array( &$this, 'locale' ) );
+		
+		/* Add the scripts */
+		//add_action( 'wp_print_scripts', array( &$this, 'enqueue' ) );
+		
+		/* Add our ajax form call */
+		//add_action( 'wp_ajax_check_email_form', array( &$this, 'ajax_form_check' ) );
+		//add_action( 'wp_ajax_nopriv_check_email_form', array( &$this, 'ajax_form_check' ) );
+		
+		/* Add our ajax success call */
+		//add_action( 'wp_ajax_hide_catch_email_success', array( &$this, 'ajax_success' ) );
+		//add_action( 'wp_ajax_nopriv_hide_catch_email_success', array( &$this, 'ajax_success' ) );
+
+		/* Filter the content */
+		add_filter( 'the_content', array( &$this, 'content' ), 1 );
+	}
+	
+	function activate() {
+		require_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'library/admin/post-meta-box.php' );
+		require_once( trailingslashit( plugin_dir_path( __FILE__ ) ) . 'library/admin/dashboard.php' );
+	}
+	
+	function locale() {
+		load_plugin_textdomain( 'hide-catch-email', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	}
+	
+	function enqueue() {
+		global $post;
+		
+		$url  = plugin_dir_url( __FILE__ );
+		
+		if ( !is_admin() && ( is_home() || is_singular() ) ) {
+			$hide = get_post_meta( $post->ID, '_HACE', true );
+			if ( $hide == 'true' ) {
+				wp_enqueue_script( 'hide-catch-email', trailingslashit( $url ) . 'library/js/ajax.js', array( 'jquery'/*, 'json2'*/ ) );
+				wp_localize_script( 'hide-catch-email', 'check_email_form',
+					array( 
+						'ajaxurl'	=> admin_url( 'admin-ajax.php' ),
+						'hideNonce' => wp_create_nonce( 'hide-catch-email-nonce' ),
+						'cookie'	=> md5( esc_url( get_permalink( $post->ID ) ) )
+					)
+				);
+			}
+		}
+	}
+	
+	function ajax_form_check() {
+		global $post;
+		
+		$domain = 'hide-catch-email';
+		
+		$nonce = $_POST['hideNonce'];
+
+		if ( !wp_verify_nonce( $nonce, 'hide-catch-email-nonce' ) )
+			die( 'Uh uh uh! You didn&rsquo;t say the magic word!' );
+			
+		$post_id = $_POST['id'];
+		
+		if ( isset( $_POST['hide'] ) ) {			
+			$msg = array();
+			
+			if ( trim( $_POST['checking'] ) !== '' ) {	
+				$message = array( "code" => "error", "error" => "checking", "message" => __( "Uh uh uh! You didn&rsquo;t say the magic word!", $domain ) );
 			} else {
-				$name = trim($_POST['contactName']);
+				$message = array( "code" => "success" );
 			}
 			
-			//Check to make sure sure that a valid email address is submitted
-			if(trim($_POST['email']) === '')  {
-				$emailError = 'You forgot to enter your email address.';
-				$hasError = true;
-			} else if (!eregi("^[A-Z0-9._%-]+@[A-Z0-9._%-]+\.[A-Z]{2,4}$", trim($_POST['email']))) {
-				$emailError = 'You entered an invalid email address.';
-				$hasError = true;
+			if ( trim( $_POST['contactName'] ) === '' ) {
+				$message = array( "code" => "error", "error" => "contactName", "message" => __( "You forgot to enter your name.", $domain ) );
 			} else {
-				$email = trim($_POST['email']);
+				$message = array( "code" => "success" );
 			}
-				
-			//Check to make sure comments were entered
-			if(trim($_POST['comments']) === '') {
-				$commentError = 'You forgot to enter your comments.';
-				$hasError = true;
+			
+			if ( trim( $_POST['email'] ) === '' )  {
+				$message = array( "code" => "error", "error" => "email", "message" => __( "You forgot to enter your email address.", $domain ) );
+			} elseif ( !is_email( $_POST['email'] ) ) {
+				$message = array( "code" => "error", "error" => "email", "message" => __( "You entered an invalid email address.", $domain ) );
 			} else {
-				if(function_exists('stripslashes')) {
-					$comments = stripslashes(trim($_POST['comments']));
+				$message = array( "code" => "success" );
+			}
+			
+			if ( trim( $_POST['comments'] ) === '' ) {
+				$message = array( "code" => "error", "error" => "comments", "message" => __( "You forgot to enter your comments.", $domain ) );
+			} else {
+				$message = array( "code" => "success" );
+			}			
+		} else {
+			$message = array( "code" => "error", "message" => __( "Nothing has been submitted.", $domain ) );
+		}
+		
+		$msg[] = $message;
+		header( "Content-Type: application/json" );
+		echo json_encode( $msg );
+		exit();
+	}
+	
+	function ajax_success() {
+		global $post;
+		
+		$post_id = $_POST['id'];
+		$query = new WP_Query( array( 'post_type' => 'any', 'posts_per_page' => '1', 'paged' => get_query_var( 'page' ) ) );
+		if ( $query->have_posts() ) : while ( $query->have_posts() ) : $query->the_post();
+			$content = get_the_content();
+		endwhile; endif;
+		
+		$arr = array();
+		$entry['code'] 		= "success";
+		$entry['id']   		= $post_id;
+		$entry['content'] 	= $content;
+		
+		$arr[] = $entry;
+		header( "Content-Type: application/json" );
+		echo json_encode( $arr );
+		exit();
+	}
+	
+	function content( $content = null ) {
+		
+		$hide 		= get_post_meta( get_the_id(), '_HACE', true );
+		$capability = get_post_meta( get_the_id(), '_HACE_Capability', true );
+		
+		$removed = sprintf( __( '%sNote: this content is %shidden%s from public view.%s', 'hide-catch-email' ), '<span class="removed">', '<a href="http://austinpassy.com/wordpress-plugins/hide-and-catch-email" title="Users who are not logged in, or don&rsquo;t have the proper capability will see a submition form.">', '</a>', '</span>' );
+		
+		if ( $hide == 'true' ) {
+			if ( is_feed() ) 
+				return $removed;
+			elseif ( is_user_logged_in() && current_user_can( $capability ) )
+				return $content . $removed;
+			else
+				return $this->form( $content );
+		}
+	
+		return $content;
+	}
+	
+	/**
+	 * Actual content replacement check
+	 * @ref http://stackoverflow.com/questions/528445/is-there-any-way-to-return-html-in-a-php-function-without-building-the-return-v (clean HTML return)
+	 */
+	function form( $content = null ) {
+		global $post;
+		
+		$domain = 'hide-catch-email';
+		
+		$hide 		= get_post_meta( $post->ID, '_HACE', true );
+		$text 		= get_post_meta( $post->ID, '_HACE_Content', true );
+		$capability = get_post_meta( $post->ID, '_HACE_Capability', true );
+		
+		$url 		= get_option( 'siteurl' );
+		$email 		= get_option( 'admin_email' );
+		$sitename 	= get_option( 'blogname' );
+		$cookie 	= md5( esc_url( get_permalink( $post->ID ) ) ); 
+		$cookieName = str_replace( array(" ", "=", ",", ";", "\t", "\r", "\n", "\013", "\014"), '', $sitename );
+		
+		/* Defaults */
+		$nameError 		= '';
+		$emailError 	= '';
+		$commentError 	= '';
+		$sendCopy		= false;
+		
+		/**
+		 * @ref http://trevordavis.net/blog/tutorial/wordpress-jquery-contact-form-without-a-plugin/
+		 * If the form is submitted
+		 */
+		if ( isset( $_POST['hide'] ) ) {
+		
+			// Check to see if the honeypot captcha field was filled in
+			if ( trim( $_POST['checking'] ) !== '' ) {
+				$captchaError = true;
+			} else {
+			
+				// Check to make sure that the name field is not empty
+				if ( trim( $_POST['contactName'] ) === '' ) {
+					$nameError = __( 'You forgot to enter your name.', $domain );
+					$hasError = true;
 				} else {
-					$comments = trim($_POST['comments']);
+					$name = trim( $_POST['contactName'] );
+				}
+				
+				// Check to make sure sure that a valid email address is submitted
+				if ( trim( $_POST['email'] ) === '' )  {
+					$emailError = __( 'You forgot to enter your email address.', $domain );
+					$hasError = true;
+				// } elseif ( !eregi( "^[A-Z0-9._%-]+@[A-Z0-9._%-]+\.[A-Z]{2,4}$", trim( $_POST['email'] ) ) ) {
+				} elseif ( !is_email( $_POST['email'] ) ) {
+					$emailError = __( 'You entered an invalid email address.', $domain );
+					$hasError = true;
+				} else {
+					$email = trim( $_POST['email'] );
+				}
+					
+				// Check to make sure comments were entered
+				if ( trim( $_POST['comments'] ) === '' ) {
+					$commentError = __( 'You forgot to enter your comments.', $domain );
+					$hasError = true;
+				} else {
+					$comments = esc_html( trim( $_POST['comments'] ) );
+				}
+					
+				// If there is no error, send the email
+				if ( !isset( $hasError ) ) {
+		
+					$emailTo = $email;
+					$subject = sprintf( __( '%s wanted to view you post [%s]', $domain ), $name, $post->ID );
+					$sendCopy = trim( $_POST['sendCopy'] );
+					$body = "From: {$name} \n\nEmail: {$email} \n\nComments: {$comments} \n\ncc: {$sendCopy}";
+					$headers = "From: {$name} <{$emailTo}>\r\nReply-To: {$email}";
+					
+					mail( $emailTo, $subject, $body, $headers );
+		
+					if ( $sendCopy == true ) {
+						$subject = sprintf( __( 'You viewed post [%s] on %s', $domain ), $post->ID, $sitename );
+						$headers = "From: {$name} <{$email}>";
+						$body = "From: \t{$name} \n\nEmail: \t{$email} \n\nComments: \t{$comments} \n\ncc: \t{$sendCopy} \n\n<table><em>the</em> <a href=\"http://austinpassy.com/wordpress-plugins/hide-and-catch-email/?utm_source='usage'\">Hide &amp; Catch Email</a> <em>plugin</em>\n<em>by</em> <a href=\"http://frostywebdesigns.com\">Frosty Web Designs</a></table>";
+						mail( $email, $subject, $body, $headers );
+					}
+		
+					$emailSent = true;
+					/*
+					 * @ref http://www.webcheatsheet.com/php/cookies.php
+					 * @ref http://us3.php.net/manual/en/function.setcookie.php
+					 * 
+					 * header(s) already sent..
+					 * @ref http://stackoverflow.com/questions/2829479/semantics-of-setting-cookies-and-redirecting-without-getting-header-error
+					 */
+					ob_start();
+					setcookie( $cookieName, $cookie, time()+(7 * 24 * 60 * 60), "/", esc_url( $url ), 0 );
+					ob_clean();
+					
+					// wp_redirect( esc_url( get_permalink( $post->ID ) ) ); exit;
+		
 				}
 			}
+		} 
+		
+		// Where the magic happens
+		if ( ( isset( $emailSent ) && $emailSent == true ) || isset( $_COOKIE[$cookieName] ) ) : 
+			return $content;	
+		else :
+			$replace = '';
+			
+			if ( $text != '' ) 
+				$replace .= '<p>' . esc_html( $text ) . '</p>';
 				
-			//If there is no error, send the email
-			if(!isset($hasError)) {
-	
-				$emailTo = $email;
-				$subject = $name.' wanted to view you post ['.$post->ID.']';
-				$sendCopy = trim($_POST['sendCopy']);
-				$body = "From: $name \n\nEmail: $email \n\nComments: $comments \n\ncc: $sendCopy";
-				$headers = 'From: '.$name.' <'.$emailTo.'>' . "\r\n" . 'Reply-To: ' . $email;
+			$replace .= '<!-- Start of replacement form by Austin Passy -->';
+				if ( isset( $hasError ) || isset( $captchaError ) )
+					$replace .= '<p class="error">' . __( 'There was an error submitting the form.', $domain ) . '</p>';
+			
+			//$replace .= $cookie; //Cookie test
+			
+			$replace .= '<form action="'. esc_url( get_permalink( $post->ID ) ) .'" id="contactForm-' . $post->ID . '" class="hide-catch-email" method="post">';
+			
+			$replace .= '<div class="forms">';
+			$replace .= '<style type="text/css">.error{background:#FFEBE8;border:1px solid #CC0000;margin-right:5px;padding:2px 4px}</style>';
+			$replace .= '<p>';
+			$replace .= '<label for="contactName">' . __( 'Your Full Name', $domain ) . '</label><br />';
+			$replace .= '<input type="text" name="contactName" id="contactName" value="';
+			
+			if ( isset( $_POST['contactName'] ) ) 
+				$replace .= esc_attr( $_POST['contactName'] ); 
+			$replace .= '" class="requiredField';
 				
-				mail($emailTo, $subject, $body, $headers);
-	
-				if($sendCopy == true) {
-					$subject = 'You viewed post '.$post->ID.' on '.$sitename;
-					$headers = 'From: '.$name.' <'.$email.'>';
-					$body = 'From: $name \n\nEmail: $email \n\nComments: $comments \n\ncc: $sendCopy'."\n\n".'<em>the</em> <a href="http://austinpassy.com/wordpress-plugins/hide-and-catch-email">Hide &amp; Catch Email</a> <em>plugin</em>'."\n".'<em>by</em> <a href="http://frostywebdesigns.com">Frosty Web Designs</a>.';
-					mail($email, $subject, $body, $headers);
-				}
-	
-				$emailSent = true;
-				/*
-				 * @ref http://www.webcheatsheet.com/php/cookies.php
-				 * @ref http://us3.php.net/manual/en/function.setcookie.php
-				 */
-				setcookie($cookieName, $cookie, time()+(7 * 24 * 60 * 60), "/", $HTTP_HOST, 0);
-	
-			}
-		}
-	} 
-	
-	if( ( isset($emailSent) && $emailSent == true ) || isset($_COOKIE[$cookieName]) ) : 
-		return $content;	
-	else :
-		$replace = '';
-		
-		if ( $text != '' ) 
-			$replace .= '<div style="margin-bottom:18px">'.$text.'</div>';
-			
-		$replace .= '<!-- Start of replacement form by Austin Passy -->';
-			if(isset($hasError) || isset($captchaError)) {
-				$replace .= '<p class="error">There was an error submitting the form.<p>';
-			}
-		
-		//$replace .= $cookie; //Cookie test
-		
-		$replace .= '<form action="'. get_permalink() .'" id="contactForm" method="post">';
-		
-		$replace .= '<div class="forms">';
-		$replace .= '<style type="text/css">.error{background:#FFEBE8;border:1px solid #CC0000;margin-right:5px}</style>';
-		$replace .= '<p>';
-		$replace .= '<label for="contactName">Your Full Name</label><br />';
-		$replace .= '<input type="text" name="contactName" id="contactName" value="';
-			if(isset($_POST['contactName'])) 
-				$replace .= $_POST['contactName']; 
-		$replace .= '" class="requiredField';
-			
-			if($nameError != '') 
+			if ( $nameError != '' ) 
 				$replace .= ' error';
-		$replace .= '" />';
+			$replace .= '" />';
+				
+			if ( $nameError != '' )
+				$replace .= '<span class="error">' . esc_attr( $nameError ) . '</span> ';
+			$replace .= '</p>';
 			
-			if($nameError != '') {
-				$replace .= '<span class="error">'.$nameError.'</span> ';
-			}
-		$replace .= '</p>';
-		
-		$replace .= '<p>';
-		$replace .= '<label for="email">Your Email</label><br />';
-		$replace .= '<input type="text" name="email" id="email" value="';
-			if(isset($_POST['email']))
-				$replace .= $_POST['email'];
-		$replace .= '" class="requiredField email';
-			if($emailError != '')
+			$replace .= '<p>';
+			$replace .= '<label for="email">' . __( 'Your Email', $domain ) . '</label><br />';
+			$replace .= '<input type="text" name="email" id="email" value="';
+			
+			if ( isset( $_POST['email'] ) )
+				$replace .= esc_attr( $_POST['email'] );
+			$replace .= '" class="requiredField email';
+			
+			if ( $emailError != '' )
 				$replace .= ' error';
-		$replace .= '" />';
+			$replace .= '" />';
+				
+			if ( $emailError != '' )
+				$replace .= '<span class="error">' . esc_attr( $emailError ) . '</span>';
+			$replace .= '</p>';
 			
-			if($emailError != '') {
-				$replace .= '<span class="error">'.$emailError.'</span>';
-			}
-		$replace .= '</p>';
-		
-		$replace .= '<p class="textarea">';
-		$replace .= '<label for="commentsText">Comments?</label><br />';
-			
-			if($commentError != '') {
-				$replace .= '<span class="error" style="display:inline-block;margin-bottom:5px">'.$commentError.'</span><br /> ';
-			}
-		$replace .= '<textarea name="comments" id="commentsText" rows="5" cols="55" class="requiredField';
-			if($commentError != '') 
+			$replace .= '<p class="textarea">';
+			$replace .= '<label for="commentsText">' . __( 'Comments?', $domain ) . '</label><br />';
+				
+			if ( $commentError != '' )
+				$replace .= '<span class="error" style="display:inline-block;margin-bottom:5px">' . esc_attr( $commentError ) . '</span><br />';
+			$replace .= '<textarea name="comments" id="commentsText" rows="5" cols="55" class="requiredField';
+			if ( $commentError != '' ) 
 				$replace .= ' error';
-		$replace .= '">';
-		
-			if(isset($_POST['comments'])) { if(function_exists('stripslashes')) { stripslashes($_POST['comments']); } else { $_POST['comments']; } } 
-		
-		$replace .= '</textarea>';
-		$replace .= '</p>';
-		
-		$replace .= '<p class="inline">';
-		$replace .= '<input type="checkbox" name="sendCopy" id="sendCopy" value="true"';
+			$replace .= '">';
 			
-			if(isset($_POST['sendCopy']) && $_POST['sendCopy'] == true)
+			if ( isset( $_POST['comments'] ) )
+				esc_html( $_POST['comments'] );
+			
+			$replace .= '</textarea>';
+			$replace .= '</p>';
+			
+			$replace .= '<p class="inline">';
+			$replace .= '<input type="checkbox" name="sendCopy" id="sendCopy" value="true"';
+				
+			if ( isset( $_POST['sendCopy'] ) && $_POST['sendCopy'] == true )
 				$replace .= ' checked="checked"';
-		$replace .= ' />';
-		$replace .= '<label for="sendCopy">Send a copy of this email to yourself?</label></li>';
-		
-		$replace .= '<p class="screenReader" style="display:none;">';
-		$replace .= '<label for="checking" class="screenReader">If you want to submit this form, do not enter anything in this field</label>';
-		$replace .= '<input type="text" name="checking" id="checking" class="screenReader" value="';
-			if(isset($_POST['checking']))
-				$replace .= $_POST['checking'];
-		$replace .= '" />';
-		$replace .= '</p>';
-		
-		$replace .= '<p class="buttons">';
-		$replace .= '<input type="hidden" name="submitted" id="submitted" value="true" />';
-		$replace .= '<input type="submit" class="button" value="Submit" />';
-		$replace .= '</p>';
-		$replace .= '</div>';
-		$replace .= '</form>';
-		$replace .= '<!-- End of replacement form by Austin Passy -->';
-		
-		return $replace;
-	endif;
-}
-
-/**
- * RSS WPCult Feed
- * @since 0.1
- * @package Admin
- */
-if ( !function_exists( 'thefrosty_network_feed' ) ) {
-	function thefrosty_network_feed( $attr, $count ) {		
-		global $wpdb;
-		
-		include_once( ABSPATH . WPINC . '/class-simplepie.php' );
-		$feed = new SimplePie();
-		//$rss = array();
-		$feed->set_feed_url( $attr );
-		$feed->enable_cache( false );
-		$feed->init();
-		$feed->handle_content_type();
-		//$feed->set_cache_location( trailingslashit( ROLLA_ADMIN ) . 'cache' );
-
-		$items = $feed->get_item();
-		echo '<div class="t' . $count . ' tab-content postbox open feed">';		
-		echo '<ul>';		
-		if ( empty( $items ) ) { 
-			echo '<li>No items</li>';		
-		} else {
-			foreach( $feed->get_items( 0, 3 ) as $item ) : ?>		
-				<li>		
-					<a href='<?php echo $item->get_permalink(); ?>' title='<?php echo $item->get_description(); ?>'><?php echo $item->get_title(); ?></a><br /> 		
-					<span style="font-size:10px; color:#aaa;"><?php echo $item->get_date('F, jS Y | g:i a'); ?></span>		
-				</li>		
-			<?php endforeach;
-		}
-		//print_r( trailingslashit( ROLLA_ADMIN ) . 'cache' );
-		echo '</ul>';		
-		echo '</div>';
+			$replace .= ' />';
+			$replace .= '<label for="sendCopy">' . __( 'Send a copy of this email to yourself?', $domain ) . '</label></li>';
+			
+			$replace .= '<p class="screenReader" style="display:none;">';
+			$replace .= '<label for="checking" class="screenReader">' . __( 'If you want to submit this form, do not enter anything in this field', $domain ) . '</label>';
+			$replace .= '<input type="text" name="checking" id="checking" class="screenReader" value="';
+			if ( isset( $_POST['checking'] ) )
+				$replace .= esc_attr( $_POST['checking'] );
+			$replace .= '" />';
+			$replace .= '</p>';
+			
+			$replace .= '<p class="buttons">';
+			$replace .= '<input type="hidden" name="hide" id="hide" value="true" />';
+			$replace .= '<input type="hidden" name="post_id" id="post_id" value="' . get_the_ID() . '" />';
+			$replace .= '<input type="submit" class="button" value="Submit" />';
+			$replace .= '</p>';
+			$replace .= '</div>';
+			$replace .= '</form>';
+			$replace .= '<!-- End of replacement form by Austin Passy -->';
+			
+			$content = $replace;
+			return $content;
+		endif;
 	}
+	
 }
-
-
-
-/**
- * Plugin Action /Settings on plugins page
- * @since 0.1
- * @package plugin
- */
-function hide_catch_plugin_actions( $links, $file ) {
- 	if( $file == 'hide-and-catch-email/hide-catch-email.php' && function_exists( "admin_url" ) ) {
-		$settings_link = '<a href="' . admin_url( 'options-general.php?page=hide-catch.php' ) . '">' . __('Settings') . '</a>';
-		array_unshift( $links, $settings_link ); // before other links
-	}
-	return $links;
-}
-
-/**
- * Warnings
- * @since 0.1
- * @package admin
- */
-function hide_catch_admin_warnings() {
-	global $hide;		
-
-		function hide_catch_warning() {
-			global $hide;
-
-			if ( $hide[ 'use' ] != true )
-
-				echo '<div id="hide-catch-warning" class="updated fade"><p><strong>Hide Catch Email plugin is not configured yet.</strong> Please activate it in the <a href="options-general.php?page=hide-catch.php">options</a> page.</p></div>';
-
-		}
-
-		add_action( 'admin_notices', 'hide_catch_warning' );
-		
-		/*
-		function hide_catch_wrong_settings() {
-			global $hide;
-
-			if ( $hide[ 'hide_ad' ] != false )
-
-				echo '<div id="hide-catch-warning" class="updated fade"><p><strong>You&prime;ve just hid the ad.</strong> Thanks for <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7329157" title="Donate on PayPal" class="external">donating</a>!</p></div>';
-
-		}
-
-		add_action( 'admin_notices', 'hide_catch_wrong_settings' );
-		*/
-
-return;
-
-}
-
-// What
 
 ?>
