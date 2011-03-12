@@ -23,6 +23,11 @@ Follow the steps below to install the plugin.
 1. Upload the `hide-and-catch-email` directory to the /wp-content/plugins/ directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 
+== Screenshots ==
+
+1. Replacement form
+2. Replacement form with error
+3. Metabox
 
 == Frequently Asked Questions ==
 
