@@ -3,7 +3,7 @@
  * Plugin Name: Hide &amp; Catch Emails
  * Plugin URI: http://austinpassy.com/wordpress-plugins/hide-and-catch-email
  * Description: Hide your content on any page/post/post_type and replace it with an email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. To use, activate on the post desired within the metabox. <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS">Like this plugin?, donate.</a> :)
- * Version: 0.3
+ * Version: 0.3.1
  * Author: Austin Passy
  * Author URI: http://frostywebdesigns.com
  *
@@ -184,7 +184,7 @@ class Hide_And_Catch_Email {
 		$capability = get_post_meta( $post->ID, '_HACE_Capability', true );
 		
 		$url 		= get_option( 'siteurl' );
-		$email 		= get_option( 'admin_email' );
+		$emailAdmin	= get_option( 'admin_email' );
 		$sitename 	= get_option( 'blogname' );
 		$cookie 	= md5( esc_url( get_permalink( $post->ID ) ) ); 
 		$cookieName = str_replace( array(" ", "=", ",", ";", "\t", "\r", "\n", "\013", "\014"), '', $sitename );
@@ -237,7 +237,7 @@ class Hide_And_Catch_Email {
 				// If there is no error, send the email
 				if ( !isset( $hasError ) ) {
 		
-					$emailTo = $email;
+					$emailTo = $emailAdmin;
 					$subject = sprintf( __( '%s wanted to view you post [%s]', $domain ), $name, $post->ID );
 					$sendCopy = trim( $_POST['sendCopy'] );
 					$body = "From: {$name} \n\nEmail: {$email} \n\nComments: {$comments} \n\ncc: {$sendCopy}";
@@ -248,7 +248,7 @@ class Hide_And_Catch_Email {
 					if ( $sendCopy == true ) {
 						$subject = sprintf( __( 'You viewed post [%s] on %s', $domain ), $post->ID, $sitename );
 						$headers = "From: {$name} <{$email}>";
-						$body = "From: \t{$name} \n\nEmail: \t{$email} \n\nComments: \t{$comments} \n\ncc: \t{$sendCopy} \n\n<table><em>the</em> <a href=\"http://austinpassy.com/wordpress-plugins/hide-and-catch-email/?utm_source='usage'\">Hide &amp; Catch Email</a> <em>plugin</em>\n<em>by</em> <a href=\"http://frostywebdesigns.com\">Frosty Web Designs</a></table>";
+						$body = "From: \t{$name} \n\nEmail: \t{$email} \n\nComments: \t{$comments} \n\ncc: \t{$sendCopy} \n\nThe Hide &amp; Catch Email plugin (http://austinpassy.com/wordpress-plugins/hide-and-catch-email) \nby http://frostywebdesigns.com";
 						mail( $email, $subject, $body, $headers );
 					}
 		

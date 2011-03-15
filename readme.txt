@@ -36,6 +36,10 @@ I created this plugin to hide certain content and only reveal it when a user ent
 
 == Changelog ==
 
+= Version 0.3.1 (3/15/11) =
+
+* Changed variable where user was getting email instead of site admin.
+
 = Version 0.3 (3/10/11) =
 
 * Complete rewrite of plugin.
