@@ -36,6 +36,10 @@ I created this plugin to hide certain content and only reveal it when a user ent
 
 == Changelog ==
 
+= Version 0.3.3 (6/23/11) =
+
+* [BUG FIX] An error in the dashboard widget is casuing some large images. Sorry. Always escape.
+
 = Version 0.3.2 (3/30/11) =
 
 * Dashboard widget updated.
