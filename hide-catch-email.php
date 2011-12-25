@@ -3,7 +3,7 @@
  * Plugin Name: Hide &amp; Catch Emails
  * Plugin URI: http://austinpassy.com/wordpress-plugins/hide-and-catch-email
  * Description: Hide your content on any page/post/post_type and replace it with an email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. To use, activate on the post desired within the metabox. <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS">Like this plugin?, donate.</a> :)
- * Version: 0.3.4
+ * Version: 0.3.5
  * Author: Austin Passy
  * Author URI: http://frostywebdesigns.com
  *

@@ -3,7 +3,7 @@ Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
 Requires at least: 3.0
-Tested up to: 3.2
+Tested up to: 3.3
 Stable tag: trunk
 
 Adds a metabox to post/page and allows you to hide the content, and show only on form submission.
@@ -35,6 +35,11 @@ Follow the steps below to install the plugin.
 I created this plugin to hide certain content and only reveal it when a user enters there email addresss.
 
 == Changelog ==
+
+= Version 0.3.5 (11/8/11) =
+
+* Feeds updated.
+* WordPress 3.3 check.
 
 = Version 0.3.4 (9/8/11) =
 
