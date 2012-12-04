@@ -3,7 +3,7 @@ Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
 Requires at least: 3.0
-Tested up to: 3.3
+Tested up to: 3.4
 Stable tag: trunk
 
 Adds a metabox to post/page and allows you to hide the content, and show only on form submission.
@@ -15,6 +15,8 @@ Newly re-written to replace the whole page/post(s) content. It will replace the 
 There are two options for the cotent replacement. 1) capability => defaults to 'activate_plugins'. 2) text => defualts to empty - (the text you'd like placed before the form).
 
 For requests or feedback please leave comments on [Hide &amp; Catch Email](http://austinpassy.com/wordpress-plugins/hide-and-catch-email/).
+
+Try the [Pro version](http://extendd.com/plugin/hide-content-catch-email-pro/), including double spam protection and AJAX submission.
 
 == Installation ==
 
@@ -35,6 +37,11 @@ Follow the steps below to install the plugin.
 I created this plugin to hide certain content and only reveal it when a user enters there email addresss.
 
 == Changelog ==
+
+= Version 0.3.5.1 (12/3/12) =
+
+* Removed PHP4 activation.
+* Updated dashboard.
 
 = Version 0.3.5 (11/8/11) =
 
