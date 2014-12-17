@@ -1,13 +1,13 @@
 <?php
 /*
  * Plugin Name: Hide &amp; Catch Emails
- * Plugin URI: http://austinpassy.com/wordpress-plugins/hide-and-catch-email
+ * Plugin URI: http://austin.passy.co/wordpress-plugins/hide-and-catch-email
  * Description: Hide your content on any page/post/post_type and replace it with an email catching form. Right now the form consists of a name field, email address, comment field, and spam deterant. To use, activate on the post desired within the metabox. <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS">Like this plugin?, donate.</a> :)
- * Version: 0.3.5.1
+ * Version: 0.4
  * Author: Austin Passy
- * Author URI: http://frostywebdesigns.com
+ * Author URI: http://austin.passy.co
  *
- * @copyright 2009 - 2011
+ * @copyright 2009 - 2015
  * @author Austin Passy
  * @link http://frostywebdesigns.com/
  * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -22,30 +22,16 @@
 add_action( 'plugins_loaded', 'hide_and_catch_email' );
 
 function hide_and_catch_email() {
-	$plugin = new Hide_And_Catch_Email();
+	global $hide_and_catch_email;
+	$hide_and_catch_email = new Hide_And_Catch_Email;
 }
 
 class Hide_And_Catch_Email {
 	
-	function __construct() {
-		register_activation_hook( __FILE__, array( &$this, 'activate' ) );
-		
-		add_action( 'init', array( &$this, 'activate' ) );
-		add_action( 'init', array( &$this, 'locale' ) );
-		
-		/* Add the scripts */
-		//add_action( 'wp_print_scripts', array( $this, 'enqueue' ) );
-		
-		/* Add our ajax form call */
-		//add_action( 'wp_ajax_check_email_form', array( $this, 'ajax_form_check' ) );
-		//add_action( 'wp_ajax_nopriv_check_email_form', array( $this, 'ajax_form_check' ) );
-		
-		/* Add our ajax success call */
-		//add_action( 'wp_ajax_hide_catch_email_success', array( $this, 'ajax_success' ) );
-		//add_action( 'wp_ajax_nopriv_hide_catch_email_success', array( $this, 'ajax_success' ) );
-
-		/* Filter the content */
-		add_filter( 'the_content', array( &$this, 'content' ), 1 );
+	function __construct() {		
+		add_action( 'init',				array( $this, 'activate' ) );
+		add_action( 'init',				array( $this, 'locale' ) );
+		add_filter( 'the_content',		array( $this, 'content' ), 1 );
 	}
 	
 	function activate() {
@@ -65,12 +51,12 @@ class Hide_And_Catch_Email {
 		if ( !is_admin() && ( is_home() || is_singular() ) ) {
 			$hide = get_post_meta( $post->ID, '_HACE', true );
 			if ( $hide == 'true' ) {
-				wp_enqueue_script( 'hide-catch-email', trailingslashit( $url ) . 'library/js/ajax.js', array( 'jquery'/*, 'json2'*/ ) );
+				wp_enqueue_script( 'hide-catch-email', trailingslashit( $url ) . 'library/js/ajax.js', array( 'jquery' ) );
 				wp_localize_script( 'hide-catch-email', 'check_email_form',
 					array( 
-						'ajaxurl'	=> admin_url( 'admin-ajax.php' ),
-						'hideNonce' => wp_create_nonce( 'hide-catch-email-nonce' ),
-						'cookie'	=> md5( esc_url( get_permalink( $post->ID ) ) )
+						'ajaxurl'		=> admin_url( 'admin-ajax.php' ),
+						'hideNonce'	=> wp_create_nonce( 'hide-catch-email-nonce' ),
+						'cookie'		=> md5( esc_url( get_permalink( $post->ID ) ) )
 					)
 				);
 			}
@@ -149,16 +135,16 @@ class Hide_And_Catch_Email {
 	
 	function content( $content = null ) {
 		
-		$hide 		= get_post_meta( get_the_id(), '_HACE', true );
-		$capability = get_post_meta( get_the_id(), '_HACE_Capability', true );
+		$hide			= get_post_meta( get_the_id(), '_HACE', true );
+		$capability	= get_post_meta( get_the_id(), '_HACE_Capability', true );
 		
-		$removed = sprintf( __( '%sNote: this content is %shidden%s from public view.%s', 'hide-catch-email' ), '<span class="removed">', '<a href="http://austinpassy.com/wordpress-plugins/hide-and-catch-email" title="Users who are not logged in, or don&rsquo;t have the proper capability will see a submition form.">', '</a>', '</span>' );
+		$removed = sprintf( __( '<p class="alert">%sNote: this content is %shidden%s from public view.%s', 'hide-catch-email' ), '<span class="removed">', '<a href="http://austin.passy.co/wordpress-plugins/hide-and-catch-email" title="Users who are not logged in, or don&rsquo;t have the proper capability will see a submition form.">', '</a>', '</span></p>' );
 		
 		if ( $hide == 'true' ) {
 			if ( is_feed() ) 
 				return $removed;
 			elseif ( is_user_logged_in() && current_user_can( $capability ) )
-				return $content . $removed;
+				return $removed . $content;
 			else
 				return $this->form( $content );
 		}
@@ -175,18 +161,18 @@ class Hide_And_Catch_Email {
 		
 		$domain = 'hide-catch-email';
 		
-		$hide 		= get_post_meta( $post->ID, '_HACE', true );
-		$text 		= get_post_meta( $post->ID, '_HACE_Content', true );
-		$capability = get_post_meta( $post->ID, '_HACE_Capability', true );
+		$hide 			= get_post_meta( $post->ID, '_HACE', true );
+		$text 			= get_post_meta( $post->ID, '_HACE_Content', true );
+		$capability 	= get_post_meta( $post->ID, '_HACE_Capability', true );
 		
-		$url 		= get_option( 'siteurl' );
+		$url 			= get_option( 'siteurl' );
 		$emailAdmin	= get_option( 'admin_email' );
-		$sitename 	= get_option( 'blogname' );
-		$cookie 	= md5( esc_url( get_permalink( $post->ID ) ) ); 
-		$cookieName = str_replace( array(" ", "=", ",", ";", "\t", "\r", "\n", "\013", "\014"), '', $sitename );
+		$sitename 		= get_option( 'blogname' );
+		$cookie 		= md5( esc_url( get_permalink( $post->ID ) ) ); 
+		$cookieName 	= str_replace( array(" ", "=", ",", ";", "\t", "\r", "\n", "\013", "\014"), '', $sitename );
 		
 		/* Defaults */
-		$nameError 		= '';
+		$nameError 	= '';
 		$emailError 	= '';
 		$commentError 	= '';
 		$sendCopy		= false;
@@ -235,11 +221,11 @@ class Hide_And_Catch_Email {
 		
 					$emailTo = $emailAdmin;
 					$subject = sprintf( __( '%s wanted to view you post [%s]', $domain ), $name, $post->ID );
-					$sendCopy = trim( $_POST['sendCopy'] );
+					$sendCopy = isset( $_POST['sendCopy'] ) && $_POST['sendCopy'] == true ? trim( $_POST['sendCopy'] ) : '';
 					$body = "From: {$name} \n\nEmail: {$email} \n\nComments: {$comments} \n\ncc: {$sendCopy}";
 					$headers = "From: {$name} <{$emailTo}>\r\nReply-To: {$email}";
 					
-					mail( $emailTo, $subject, $body, $headers );
+					wp_mail( $emailTo, $subject, $body, $headers );
 		
 					if ( $sendCopy == true ) {
 						$subject = sprintf( __( 'You viewed post [%s] on %s', $domain ), $post->ID, $sitename );
@@ -365,5 +351,3 @@ class Hide_And_Catch_Email {
 	}
 	
 }
-
-?>

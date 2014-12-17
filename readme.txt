@@ -3,20 +3,20 @@ Contributors: austyfrosty
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=F8F3JJ9ERQBYS
 Tags: shortcode, replace, email, content, catch-email, hide-content
 Requires at least: 3.0
-Tested up to: 3.4
+Tested up to: 4.2
 Stable tag: trunk
 
 Adds a metabox to post/page and allows you to hide the content, and show only on form submission.
 
 == Description ==
 
-Newly re-written to replace the whole page/post(s) content. It will replace the content with a form a user (who is not logged in and/or set to a certain user role (set by you on a per post basis)) would have to fill out to see said content. Right now the form consists of a name field, email address, comment field, and spam deterant.
+Replace the any public post types content with a form. Any visitor (who is not logged-in and/or set to a certain user role **set by you on a per post basis**) would have to fill out the form to see said content. Right now the form consists of a name field, email field and comment field. The form has a built in spam deterant *honey-pot* method.
 
-There are two options for the cotent replacement. 1) capability => defaults to 'activate_plugins'. 2) text => defualts to empty - (the text you'd like placed before the form).
+There are two options per each post for the cotent replacement. 1) capability => defaults to 'activate_plugins'. 2) text => defualts to empty - (the text you'd like placed before the form). 
 
-For requests or feedback please leave comments on [Hide &amp; Catch Email](http://austinpassy.com/wordpress-plugins/hide-and-catch-email/).
+There are no furthur options or ways to view who has submitted which form beyond the email you receive. If you would like to keep a copy of all submissions per post please upgrade to the [Pro version](http://extendd.com/plugin/hide-content-catch-email-pro/), including double spam protection and AJAX submissions.
 
-Try the [Pro version](http://extendd.com/plugin/hide-content-catch-email-pro/), including double spam protection and AJAX submission.
+For requests or feedback please leave comments on [Hide &amp; Catch Email](http://austin.passy.co/wordpress-plugins/hide-and-catch-email/).
 
 == Installation ==
 
@@ -33,10 +33,18 @@ Follow the steps below to install the plugin.
 
 == Frequently Asked Questions ==
 
+= Where can I view submissions? =
+You'll have to upgade to the [Pro version](http://extendd.com/plugin/hide-content-catch-email-pro/) to view submission on each post.
+
 = Why create this plugin? =
 I created this plugin to hide certain content and only reveal it when a user enters there email addresss.
 
 == Changelog ==
+
+= Version 0.4 (12/17/14) =
+
+* Ready for WordPress 4.1
+* Change mail to wp_mail
 
 = Version 0.3.5.1 (12/3/12) =
 
